@@ -20,9 +20,13 @@ def save_history(history):
         return False
 
 def foreground(title = "ELEKTRA "):
-    window = gw.getWindowsWithTitle(title)[0]
-    window.activate()
-    window.maximize()
+    try:
+        window = gw.getWindowsWithTitle(title)[0]
+        window.activate()
+        window.maximize()
+    except:
+        pmb.alert("找不到ELEKTRA窗口", "错误")
+        sys.exit()
 
 class ELEKTRA:
     def __init__(self):
@@ -75,11 +79,11 @@ class ELEKTRA:
         
         input_model = pmb.prompt(title="机种型号:", default=self.var_model)
         input_class = pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
-        input_sn = pmb.prompt(title="SN:", default=self.var_sn)
+        input_sn = pmb.prompt(title="SN:",rows=len(self.var_sn), default=self.var_sn)
         input_power = pmb.prompt(title="单体的Vac:", default=self.var_power)
         input_load = pmb.prompt(title="单体负载:", default=self.var_load)
         input_lisn = pmb.prompt(title="LISN顺序:", default=self.var_lisn)
-        input_exclude = pmb.prompt(title="排除已测试条件:", default=''.join(self.var_exclude))
+        input_exclude = pmb.prompt(title="排除已测试条件:",rows=4, default=''.join(self.var_exclude))
         
         self.history['model'] = self.var_model = input_model
         self.history['class'] = self.var_class = input_class
@@ -87,7 +91,7 @@ class ELEKTRA:
         self.history['power'] = self.var_power = input_power.split(' ')
         self.history['load'] = self.var_load = input_load.split(' ')
         self.history['lisn'] = self.var_lisn = input_lisn.split(' ')
-        self.history['exclude'] = self.var_exclude = input_exclude.split(' ')
+        self.history['exclude'] = self.var_exclude = input_exclude.split()
         save_history(self.history)
         
         if input_method == "SN-LOAD-POWER":
@@ -272,11 +276,13 @@ class ELEKTRA:
             if self.testItem in self.var_exclude:
                 pmb.alert(f"{sn}-{power}-{load}-{lisn} 已测试过，跳过","测试提示",timeout=ALERT_TIMEOUT)
                 continue
-                        
-            if lisn == "L" and exists_image(self.pic_ln_n) or lisn == "N" and exists_image(self.pic_ln_l1):
-                moveTo_image(self.pic_lisn_l,wait_time=0.6)
+
+            foreground()
+            minTime = 0.2
+            if lisn == "L" and exists_image(self.pic_ln_n,minTime) or lisn == "N" and exists_image(self.pic_ln_l1,minTime):
+                moveTo_image(self.pic_lisn_n,wait_time=0.3)
                 pg.click()
-                moveTo_image(self.pic_lisn_n,wait_time=0.6)
+                moveTo_image(self.pic_lisn_l,wait_time=0.1)
                 pg.click()
                 lisn_changed = True
             else:

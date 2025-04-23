@@ -1,7 +1,7 @@
 import os
 import sys
 import pyautogui as pg
-import pymsgbox as pmb
+import mypymsgbox as pmb
 
 from rich import inspect
 
