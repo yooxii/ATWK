@@ -1,7 +1,25 @@
 {
-    "model": "FSF019-4C0G",
-    "class": "Class B",
-    "sn": "1GG1F021804",
-    "power": "220V",
-    "load": "100%"
+    "model": "FSH092-4C0G",
+    "class": "Class A",
+    "sn": [
+        "1GG5F149018",
+        "1GG5F149019",
+        "1GG5F149021"
+    ],
+    "power": [
+        "220V",
+        "110V"
+    ],
+    "load": [
+        "100%",
+        "50%",
+        "25%"
+    ],
+    "lisn": [
+        "L",
+        "N"
+    ],
+    "exclude": [
+        ""
+    ]
 }

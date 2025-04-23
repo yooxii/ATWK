@@ -17,11 +17,11 @@ PBOTTOM = ['bottom', (0,-5)]
 # 警告框超时时间，1000ms
 ALERT_TIMEOUT = 1000
 MOVETIMES = 5
-PIC_CONFIDENCE = 0.95
+PIC_CONFIDENCE = 0.96
 
-def exists_image(image_path, timeout=5.0):
+def exists_image(image_path, minSearchTime=1.0,region:tuple[int,int,int,int]=None):
     try:
-        pg.locateOnScreen(image_path, minSearchTime=timeout, confidence=PIC_CONFIDENCE)
+        pg.locateOnScreen(image_path, minSearchTime=minSearchTime,region=region, confidence=PIC_CONFIDENCE)
         return True
     except:
         return False
@@ -39,7 +39,7 @@ def moveTo_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, time
         return False
     
     try:
-        inspect(locat)
+        # inspect(locat)
         error_message = "位置错误:" + str(position) + ","
         ct = pg.center(locat)
         if position[0] == 'center':
@@ -56,7 +56,7 @@ def moveTo_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, time
             raise ValueError("There not " + position[0])
         
         cp = (ct.x+position[1][0], ct.y+position[1][1])
-        inspect(cp)
+        # inspect(cp)
     except Exception as e:
         error_message += str(e)
         pmb.alert(error_message, title="警告", timeout=ALERT_TIMEOUT)
@@ -69,3 +69,6 @@ def moveTo_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, time
         movetimes -= 1
     
     return True
+
+if __name__ == '__main__':
+    print(pg.locateOnScreen(".\\Pic_lib\\six_1.png", region=(300,500,700,1000), minSearchTime=1.5, confidence=0.96))
