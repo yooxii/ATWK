@@ -123,7 +123,7 @@ alert = _alertTkinter
 
 
 def _confirmTkinter(
-    text="", title="", buttons=(OK_TEXT, CANCEL_TEXT), root=None, timeout=None
+    text="", title="", buttons=(OK_TEXT, CANCEL_TEXT), topmost=False, root=None, timeout=None
 ):
     """Displays a message box with OK and Cancel buttons. Number and text of buttons can be customized. Returns the text of the button clicked on."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
@@ -132,6 +132,7 @@ def _confirmTkinter(
         msg=text,
         title=title,
         choices=[str(b) for b in buttons],
+        topmost=topmost,
         root=root,
         timeout=timeout,
     )
@@ -163,16 +164,16 @@ password = _passwordTkinter
 
 
 # Load the native versions of the alert/confirm/prompt/password functions, if available:
-if sys.platform == "win32":
-    from . import _native_win
+# if sys.platform == "win32":
+#     from . import _native_win
 
-    NO_ICON = 0
-    STOP = 0x10
-    QUESTION = 0x20
-    WARNING = 0x30
-    INFO = 0x40
-    alert = _native_win.alert
-    confirm = _native_win.confirm
+#     NO_ICON = 0
+#     STOP = 0x10
+#     QUESTION = 0x20
+#     WARNING = 0x30
+#     INFO = 0x40
+#     alert = _native_win.alert
+#     confirm = _native_win.confirm
 
 
 def timeoutBoxRoot():
@@ -182,7 +183,7 @@ def timeoutBoxRoot():
     __enterboxText = TIMEOUT_RETURN_VALUE
 
 
-def _buttonbox(msg, title, choices, root=None, timeout=None):
+def _buttonbox(msg, title, choices, topmost=False, root=None, timeout=None):
     """
     Display a msg, a title, and a set of buttons.
     The buttons are defined by the members of the choices list.
@@ -202,9 +203,11 @@ def _buttonbox(msg, title, choices, root=None, timeout=None):
         root.withdraw()
         boxRoot = tk.Toplevel(master=root)
         boxRoot.withdraw()
+        boxRoot.attributes("-topmost", topmost)
     else:
         boxRoot = tk.Tk()
         boxRoot.withdraw()
+        boxRoot.attributes("-topmost", topmost)
 
     boxRoot.title(title)
     boxRoot.iconname("Dialog")

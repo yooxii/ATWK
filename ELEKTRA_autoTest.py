@@ -315,7 +315,7 @@ class ELEKTRA:
 
         #TODO: 图像拽取
         while True:
-            PT_OK = pmb.confirm("重要点选择完成？",title="重要点选取",buttons=["是", "否"])
+            PT_OK = pmb.confirm("重要点选择完成？",topmost=True,title="重要点选取",buttons=["是", "否"])
             if PT_OK == "是":
                 point_region = (300,500,700,1000)
                 minTime = 0.2
