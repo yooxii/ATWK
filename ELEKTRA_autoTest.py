@@ -75,7 +75,7 @@ class ELEKTRA:
         self.var_exclude:list = self.history.get('exclude', [''])
 
     def input_testConfig(self):
-        input_method = pmb.confirm(title="测试条件顺序", buttons=["SN-LOAD-POWER", "LOAD-SN-POWER", "POWER-SN-LOAD"])
+        input_method = pmb.confirm(title="测试条件顺序", buttons=["SN-LOAD-POWER", "LOAD-SN-POWER", "SN_POWER_LOAD"])
         
         input_model = pmb.prompt(title="机种型号:", default=self.var_model)
         input_class = pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
@@ -98,21 +98,21 @@ class ELEKTRA:
             self.SN_LOAD_POWER()
         elif input_method == "LOAD-SN-POWER":
             self.LOAD_SN_POWER()
-        elif input_method == "POWER-SN-LOAD":
+        elif input_method == "SN_POWER_LOAD":
             self.POWER_SN_LOAD()
         else:
             pmb.alert("未知的测试条件顺序", "错误")
 
     def set_testConfig(self):
+        moveTo_image(self.pic_saveTest)
+        pg.click()
+        
         if self.var_class == "Class A":
             self.pic_class = self.pic_classA
         else:
             self.pic_class = self.pic_classB
         moveTo_image(self.pic_class)
         pg.click(clicks=2)
-        
-        moveTo_image(self.pic_saveTest)
-        pg.click()
         
         moveTo_image(self.pic_peijian,wait_time=0.6)
         pg.click()
@@ -223,7 +223,7 @@ class ELEKTRA:
             self.var_sn.reverse()
             snNoChange = True
 
-    def POWER_SN_LOAD(self):
+    def SN_POWER_LOAD(self):
         """
         """
         foreground()
@@ -234,25 +234,23 @@ class ELEKTRA:
         
         # return
         self.set_testConfig()
-        
-        for power in self.var_power:
-            moveTo_image(self.pic_power, ['left', (600,0)])
+        for sn in self.var_sn:
+            moveTo_image(self.pic_sn, ['left', (600,0)])
             pg.click()
-            pg.typewrite(power)
+            pg.typewrite(sn)
             self.movetoQueRen()
-            pmb.confirm("确认已切换到"+power, "确认窗口",["已确认"])
-            
-                
-            for sn in self.var_sn:
-                if not snNoChange:
-                    moveTo_image(self.pic_sn, ['left', (600,0)])
-                    pg.click()
-                    pg.typewrite(sn)
-                    self.movetoQueRen()
-                    pmb.confirm("确认已切换到"+sn, "确认窗口",["已确认"])
-                else:
-                    snNoChange = False
+            pmb.confirm("确认已切换到"+sn, "确认窗口",["已确认"])
                     
+            for power in self.var_power:
+                if not powerNoChange:
+                    moveTo_image(self.pic_power, ['left', (600,0)])
+                    pg.click()
+                    pg.typewrite(power)
+                    self.movetoQueRen()
+                    pmb.confirm("确认已切换到"+power, "确认窗口",["已确认"])
+                else:
+                    powerNoChange = False
+                
                 for load in self.var_load:
                     if not loadNoChange:
                         moveTo_image(self.pic_load, ['left', (600,0)])
@@ -267,8 +265,8 @@ class ELEKTRA:
                 
                 self.var_load.reverse()
                 loadNoChange = True
-            self.var_sn.reverse()
-            snNoChange = True
+            self.var_power.reverse()
+            powerNoChange = True
 
     def loop_lisn(self, sn, load, power):
         for lisn in self.var_lisn:
@@ -315,7 +313,7 @@ class ELEKTRA:
 
         #TODO: 图像拽取
         while True:
-            PT_OK = pmb.confirm("重要点选择完成？",topmost=True,title="重要点选取",buttons=["是", "否"])
+            PT_OK = pmb.confirm("重要点选择完成？",position="+900+500",topmost=True,title="重要点选取",buttons=["是", "否"])
             if PT_OK == "是":
                 point_region = (300,500,700,1000)
                 minTime = 0.2
@@ -331,7 +329,11 @@ class ELEKTRA:
         moveTo_image(self.pic_qujian, ["bottom", (0, 20)])
         pg.click()
         pg.typewrite("1\n2\n3\n4\n5\n6\n")
-            
+        
+    def saveReport(self):
+        moveTo_image(self.pic_saveTest)
+        pg.click()
+        
         moveTo_image(self.pic_saverp)
         pg.click()
                         
@@ -341,11 +343,11 @@ class ELEKTRA:
         moveTo_image(self.pic_exportrp,["right", (-10,0)])
         pg.click()
         
-    def saveReport(self):
         if self.var_first:
             self.var_first= False
             pmb.confirm("请选择保存位置","选择位置",["已完成"])
         foreground()
+        change_language("EN")
         moveTo_image(self.pic_wenjianming,["right",(100,0)])
         pg.click()
         pg.keyDown('ctrl')
@@ -356,9 +358,6 @@ class ELEKTRA:
                             
         moveTo_image(self.pic_class)
         pg.click(clicks=2)
-                        
-        moveTo_image(self.pic_saveTest)
-        pg.click()
 
     def movetoQueRen(self):
         pg.moveTo(520,290)

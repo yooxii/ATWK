@@ -47,7 +47,7 @@ TKINTER_IMPORT_SUCCEEDED = True
 
 try:
     if RUNNING_PYTHON_2:
-        import Tkinter as tk
+        import Tkinter as tk # type: ignore
     else:
         import tkinter as tk
 
@@ -123,7 +123,7 @@ alert = _alertTkinter
 
 
 def _confirmTkinter(
-    text="", title="", buttons=(OK_TEXT, CANCEL_TEXT), topmost=False, root=None, timeout=None
+    text="", title="", buttons=(OK_TEXT, CANCEL_TEXT), position=rootWindowPosition, topmost=False, root=None, timeout=None
 ):
     """Displays a message box with OK and Cancel buttons. Number and text of buttons can be customized. Returns the text of the button clicked on."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
@@ -132,6 +132,7 @@ def _confirmTkinter(
         msg=text,
         title=title,
         choices=[str(b) for b in buttons],
+        position=position,
         topmost=topmost,
         root=root,
         timeout=timeout,
@@ -183,7 +184,7 @@ def timeoutBoxRoot():
     __enterboxText = TIMEOUT_RETURN_VALUE
 
 
-def _buttonbox(msg, title, choices, topmost=False, root=None, timeout=None):
+def _buttonbox(msg, title, choices, position=rootWindowPosition, topmost=False, root=None, timeout=None):
     """
     Display a msg, a title, and a set of buttons.
     The buttons are defined by the members of the choices list.
@@ -211,7 +212,7 @@ def _buttonbox(msg, title, choices, topmost=False, root=None, timeout=None):
 
     boxRoot.title(title)
     boxRoot.iconname("Dialog")
-    boxRoot.geometry(rootWindowPosition)
+    boxRoot.geometry(position)
     boxRoot.minsize(400, 100)
 
     # ------------- define the messageFrame ---------------------------------
