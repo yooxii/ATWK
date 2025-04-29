@@ -99,7 +99,7 @@ class ELEKTRA:
         elif input_method == "LOAD-SN-POWER":
             self.LOAD_SN_POWER()
         elif input_method == "SN_POWER_LOAD":
-            self.POWER_SN_LOAD()
+            self.SN_POWER_LOAD()
         else:
             pmb.alert("未知的测试条件顺序", "错误")
 
@@ -261,7 +261,7 @@ class ELEKTRA:
                     else:
                         loadNoChange = False
                     
-                    self.loop_lisn(sn, load, load)
+                    self.loop_lisn(sn, load, power)
                 
                 self.var_load.reverse()
                 loadNoChange = True
@@ -272,7 +272,7 @@ class ELEKTRA:
         for lisn in self.var_lisn:
             self.testItem = f"{sn}-{power}-{load}-{lisn}"
             if self.testItem in self.var_exclude:
-                pmb.alert(f"{sn}-{power}-{load}-{lisn} 已测试过，跳过","测试提示",timeout=ALERT_TIMEOUT)
+                pmb.alert(f"{self.testItem} 已测试过，跳过","测试提示",timeout=ALERT_TIMEOUT)
                 continue
 
             foreground()
