@@ -1,5 +1,3 @@
-import os
-import sys
 import pyautogui as pg
 import mypymsgbox as pmb
 
@@ -20,6 +18,16 @@ MOVETIMES = 5
 PIC_CONFIDENCE = 0.96
 
 def exists_image(image_path, minSearchTime=1.0,region:tuple[int,int,int,int]=None):
+    """检测屏幕是否存在匹配的图像。
+
+    Args:
+        image_path (str): 图像路径
+        minSearchTime (float, optional): 超时时间. 默认值: 1.0.
+        region (tuple[int,int,int,int], optional): 限制区域寻找. 默认值: None.
+
+    Returns:
+        bool: 成功匹配返回True，否则返回False
+    """
     try:
         pg.locateOnScreen(image_path, minSearchTime=minSearchTime,region=region, confidence=PIC_CONFIDENCE)
         return True
@@ -27,6 +35,21 @@ def exists_image(image_path, minSearchTime=1.0,region:tuple[int,int,int,int]=Non
         return False
 
 def moveTo_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, timeout=5.0):
+    """移动鼠标到屏幕图像匹配位置。
+
+    Args:
+        image_path (str): 图片路径
+        position (list, optional): 图像内部位置. 默认值: PCENTER.
+        duration (float, optional): 鼠标移动速度. 默认值: 0.0.
+        wait_time (float, optional): 鼠标移动前等待时间. 默认值: 0.3.
+        timeout (float, optional): 图像匹配超时时间. 默认值: 5.0.
+
+    Raises:
+        ValueError: 图像内部位置错误
+
+    Returns:
+        bool: 成功匹配返回True，否则返回False
+    """
     pg.sleep(wait_time)
     error_message = ""
     
@@ -69,6 +92,10 @@ def moveTo_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, time
         movetimes -= 1
     
     return True
+
+def click_image(image_path, position=PCENTER, duration=0.0, wait_time=0.3, timeout=5.0, clicks=1):
+    if moveTo_image(image_path,position,duration,wait_time,timeout):
+        pg.click(clicks=clicks)
 
 if __name__ == '__main__':
     print(pg.locateOnScreen(".\\Pic_lib\\six_1.png", region=(300,500,700,1000), minSearchTime=1.5, confidence=0.96))

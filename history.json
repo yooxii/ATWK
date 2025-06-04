@@ -1,12 +1,10 @@
 {
-    "model": "FSL034-00BG",
+    "model": "FSE052-GAAG",
     "class": "Class A",
     "sn": [
-        "0S1251400012700BGBFSL034",
-        "0S1251400015000BGBFSL034",
-        "0S1251400015300BGBFSL034",
-        "0S1251400005000BGBFSL034",
-        "0S1251400005500BGBFSL034"
+        "FSE052A07GAAGB2522015277",
+        "FSE052A07GAAGB2522016050",
+        "FSE052A07GAAGB2522016051"
     ],
     "power": [
         "220V",
