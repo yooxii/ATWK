@@ -2,22 +2,16 @@
     "model": "FSE052-GAAG",
     "class": "Class A",
     "sn": [
-        "FSE052A07GAAGB2522015277",
-        "FSE052A07GAAGB2522016050",
-        "FSE052A07GAAGB2522016051"
+        "FSE052A07GAAGB2522015277"
     ],
     "power": [
-        "220V",
-        "110V"
+        "220V"
     ],
     "load": [
-        "100%",
-        "50%",
-        "25%"
+        "100%"
     ],
     "lisn": [
-        "L",
-        "N"
+        "L"
     ],
     "exclude": []
 }

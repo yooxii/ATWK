@@ -3,6 +3,7 @@ from change_lang import change_language
 
 import pygetwindow as gw
 import json
+import time
 import sys
 
 
@@ -44,6 +45,7 @@ class ELEKTRA:
         self.init_var()
 
     def init_pic(self):
+        """初始化图片"""
         self.pic_saveTest = ".\\Pic_lib\\SaveTest.png"
         self.pic_classA = ".\\Pic_lib\\ClassA.png"
         self.pic_classB = ".\\Pic_lib\\ClassB.png"
@@ -72,6 +74,7 @@ class ELEKTRA:
         self.pic_exportrp = ".\\Pic_lib\\ExportRp.png"
 
     def init_var(self):
+        """初始化变量"""
         self.var_first = True
 
         self.history = load_history()
@@ -85,6 +88,7 @@ class ELEKTRA:
         self.var_exclude: list = self.history.get("exclude", [""])
 
     def input_testConfig(self):
+        """输入测试配置"""
         input_method = pmb.confirm(
             title="测试条件顺序",
             buttons=["SN-LOAD-POWER", "LOAD-SN-POWER", "SN_POWER_LOAD"],
@@ -92,12 +96,12 @@ class ELEKTRA:
 
         input_model = pmb.prompt(title="机种型号:", default=self.var_model)
         input_class = pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
-        input_sn = pmb.prompt(title="SN:", rows=len(self.var_sn), default=self.var_sn)
+        input_sn = pmb.prompt(title="SN:", rows=6, default=self.var_sn)
         input_power = pmb.prompt(title="单体的Vac:", default=self.var_power)
         input_load = pmb.prompt(title="单体负载:", default=self.var_load)
         input_lisn = pmb.prompt(title="LISN顺序:", default=self.var_lisn)
         input_exclude = pmb.prompt(
-            title="排除已测试条件:", rows=4, default="".join(self.var_exclude)
+            title="排除已测试条件:", rows=6, default="".join(self.var_exclude)
         )
 
         self.history["model"] = self.var_model = input_model
@@ -119,6 +123,7 @@ class ELEKTRA:
             pmb.alert("未知的测试条件顺序", "错误")
 
     def set_testConfig(self):
+        """设置测试配置"""
         click_image(self.pic_saveTest)
 
         if self.var_class == "Class A":
@@ -129,7 +134,6 @@ class ELEKTRA:
         click_image(self.pic_class, clicks=2)
         click_image(self.pic_peijian, wait_time=0.6)
         click_image(self.pic_ceshixinxi)
-        click_image(self.pic_neirong)
         pg.scroll(-2)
         pg.scroll(-2)
         pg.scroll(-2)
@@ -265,6 +269,7 @@ class ELEKTRA:
             powerNoChange = True
 
     def loop_lisn(self, sn, load, power):
+        """LISN循环"""
         for lisn in self.var_lisn:
             self.testItem = f"{sn}-{power}-{load}-{lisn}"
             if self.testItem in self.var_exclude:
@@ -297,7 +302,8 @@ class ELEKTRA:
         self.var_lisn.reverse()
 
     def selectPoint(self, lisn_changed):
-        click_image(self.pic_zhongyaodian,clicks=2)
+        """选择测试点"""
+        click_image(self.pic_zhongyaodian, clicks=2)
         click_image(self.pic_run)
 
         if lisn_changed:
@@ -339,6 +345,7 @@ class ELEKTRA:
         pg.typewrite("1\n2\n3\n4\n5\n6\n")
 
     def saveReport(self):
+        """保存报告"""
         click_image(self.pic_saveTest)
         click_image(self.pic_saverp)
         click_image(self.pic_exportrp, ["left", (10, 0)], timeout=10)
@@ -365,6 +372,21 @@ class ELEKTRA:
         pg.moveTo(520, 290)
 
 
-if __name__ == "__main__":
+def TimeCount(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        func(*args, **kwargs)
+        end_time = time.time()
+        print(f"程序运行时间：{end_time - start_time:.2f}秒")
+
+    return wrapper
+
+
+@TimeCount
+def main():
     ato = ELEKTRA()
     ato.input_testConfig()
+
+
+if __name__ == "__main__":
+    main()
