@@ -106,6 +106,17 @@ boxRoot = None
 buttonsFrame = None
 
 
+def CancelToExit(func):
+    """Decorator to catch the Cancel button and exit the program."""
+
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        if result == CANCEL_TEXT or result == None:
+            sys.exit()
+        return result
+
+    return wrapper
+
 def _alertTkinter(text="", title="", button=OK_TEXT, root=None, timeout=None):
     """Displays a simple message box with text and a single OK button. Returns the text of the button clicked on."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
@@ -141,7 +152,7 @@ def _confirmTkinter(
 
 confirm = _confirmTkinter
 
-
+@CancelToExit
 def _promptTkinter(text="", title="", rows=1, default="", root=None, timeout=None):
     """Displays a message box with text input, and OK & Cancel buttons. Returns the text entered, or None if Cancel was clicked."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
@@ -149,7 +160,6 @@ def _promptTkinter(text="", title="", rows=1, default="", root=None, timeout=Non
     return __fillablebox(
         text, title, default=default, rows=rows, mask=None, root=root, timeout=timeout
     )
-
 
 prompt = _promptTkinter
 

@@ -75,47 +75,67 @@ class ELEKTRA:
 
     def init_var(self):
         """初始化变量"""
-        self.var_first = True
+        self.var_first: bool = True
 
-        self.history = load_history()
-
-        self.var_model: str = self.history.get("model", "")
-        self.var_class: str = self.history.get("class", "")
-        self.var_sn: list = self.history.get("sn", [])
-        self.var_power: list = self.history.get("power", [])
-        self.var_load: list = self.history.get("load", [])
-        self.var_lisn: list = self.history.get("lisn", [])
-        self.var_exclude: list = self.history.get("exclude", [""])
+        self.var_model: str = None
+        self.var_class: str = None
+        self.var_sn: list = None
+        self.var_power: list = None
+        self.var_load: list = None
+        self.var_lisn: list = None
+        self.var_exclude: list = None
 
     def input_testConfig(self):
         """输入测试配置"""
         input_method = pmb.confirm(
             title="测试条件顺序",
-            buttons=["SN-LOAD-POWER", "LOAD-SN-POWER", "SN_POWER_LOAD"],
+            buttons=["SN_LOAD_POWER", "LOAD_SN_POWER", "SN_POWER_LOAD"],
         )
+        if not input_method:
+            pmb.alert("未选择测试条件顺序", "退出")
+            sys.exit()
 
-        input_model = pmb.prompt(title="机种型号:", default=self.var_model)
-        input_class = pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
-        input_sn = pmb.prompt(title="SN:", rows=6, default=self.var_sn)
-        input_power = pmb.prompt(title="单体的Vac:", default=self.var_power)
-        input_load = pmb.prompt(title="单体负载:", default=self.var_load)
-        input_lisn = pmb.prompt(title="LISN顺序:", default=self.var_lisn)
+        loaded_history = load_history()
+        if input_method in loaded_history:
+            self.history = loaded_history[input_method]
+        else:
+            self.history = {}
+
+        default_model: str = self.history.get("model", "")
+        default_class: str = self.history.get("class", "")
+        default_sn: list = self.history.get("sn", [])
+        default_power: list = self.history.get("power", [])
+        defualt_load: list = self.history.get("load", [])
+        defualt_lisn: list = self.history.get("lisn", [])
+        defualt_exclude: list = self.history.get("exclude", [""])
+
+        input_class = (
+            pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
+            or default_class
+        )
+        input_model = pmb.prompt(title="机种型号:", default=default_model)
+        input_sn = pmb.prompt(title="SN:", rows=6, default=default_sn)
+        input_power = pmb.prompt(title="单体的Vac:", default=default_power)
+        input_load = pmb.prompt(title="单体负载:", default=defualt_load)
+        input_lisn = pmb.prompt(title="LISN顺序:", default=defualt_lisn)
         input_exclude = pmb.prompt(
-            title="排除已测试条件:", rows=6, default="".join(self.var_exclude)
+            title="排除已测试条件:", rows=6, default="".join(defualt_exclude)
         )
 
-        self.history["model"] = self.var_model = input_model
         self.history["class"] = self.var_class = input_class
+        self.history["model"] = self.var_model = input_model
         self.history["sn"] = self.var_sn = input_sn.split()
         self.history["power"] = self.var_power = input_power.split(" ")
         self.history["load"] = self.var_load = input_load.split(" ")
         self.history["lisn"] = self.var_lisn = input_lisn.split(" ")
         self.history["exclude"] = self.var_exclude = input_exclude.split()
-        save_history(self.history)
 
-        if input_method == "SN-LOAD-POWER":
+        loaded_history[input_method] = self.history
+        save_history(loaded_history)
+
+        if input_method == "SN_LOAD_POWER":
             self.SN_LOAD_POWER()
-        elif input_method == "LOAD-SN-POWER":
+        elif input_method == "LOAD_SN_POWER":
             self.LOAD_SN_POWER()
         elif input_method == "SN_POWER_LOAD":
             self.SN_POWER_LOAD()

@@ -1,17 +1,71 @@
 {
-    "model": "FSE052-GAAG",
-    "class": "Class A",
-    "sn": [
-        "FSE052A07GAAGB2522015277"
-    ],
-    "power": [
-        "220V"
-    ],
-    "load": [
-        "100%"
-    ],
-    "lisn": [
-        "L"
-    ],
-    "exclude": []
+    "SN_LOAD_POWER": {
+        "class": "Class A",
+        "model": "FSJ008-7LAG",
+        "sn": [
+            "1234",
+            "1235",
+            "1236"
+        ],
+        "power": [
+            "220V",
+            "110V"
+        ],
+        "load": [
+            "100%",
+            "50%",
+            "25%"
+        ],
+        "lisn": [
+            "L",
+            "N"
+        ],
+        "exclude": []
+    },
+    "LOAD_SN_POWER": {
+        "class": "Class A",
+        "model": "FSJ008-7LAG",
+        "sn": [
+            "1234",
+            "1235",
+            "1236"
+        ],
+        "power": [
+            "220V",
+            "110V"
+        ],
+        "load": [
+            "100%",
+            "50%",
+            "25%"
+        ],
+        "lisn": [
+            "L",
+            "N"
+        ],
+        "exclude": []
+    },
+    "SN_POWER_LOAD": {
+        "class": "Class A",
+        "model": "FSJ008-7LAG",
+        "sn": [
+            "1234",
+            "1235",
+            "1236"
+        ],
+        "power": [
+            "220V",
+            "110V"
+        ],
+        "load": [
+            "100%",
+            "50%",
+            "25%"
+        ],
+        "lisn": [
+            "L",
+            "N"
+        ],
+        "exclude": []
+    }
 }
