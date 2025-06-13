@@ -9,7 +9,7 @@ class TestELEKTRA(unittest.TestCase):
         foreground()
         
     def test_pic(self):
-        self.assertTrue(exists_image(self.elektra.pic_wenjianming))
+        self.assertTrue(exists_image(self.elektra.pic_ln_l1, confidence=0.93))
         
 if __name__ == '__main__':
     unittest.main()

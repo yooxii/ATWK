@@ -1,11 +1,11 @@
 {
     "SN_LOAD_POWER": {
         "class": "Class A",
-        "model": "FSJ008-7LAG",
+        "model": "FSB015-4C0G",
         "sn": [
-            "1234",
-            "1235",
-            "1236"
+            "1GA4F182549",
+            "1GA4F183704",
+            "1GA4F183989"
         ],
         "power": [
             "220V",
@@ -47,11 +47,11 @@
     },
     "SN_POWER_LOAD": {
         "class": "Class A",
-        "model": "FSJ008-7LAG",
+        "model": "FSH018-7EAG",
         "sn": [
-            "1234",
-            "1235",
-            "1236"
+            "FSH018A017EAGB2522001286",
+            "FSH018A017EAGB2522001303",
+            "FSH018A017EAGB2522001308"
         ],
         "power": [
             "220V",
@@ -66,6 +66,8 @@
             "L",
             "N"
         ],
-        "exclude": []
+        "exclude": [
+            "FSH018A017EAGB2522001286-220V-100%-L"
+        ]
     }
 }

@@ -77,13 +77,13 @@ class ELEKTRA:
         """初始化变量"""
         self.var_first: bool = True
 
-        self.var_model: str = None
-        self.var_class: str = None
-        self.var_sn: list = None
-        self.var_power: list = None
-        self.var_load: list = None
-        self.var_lisn: list = None
-        self.var_exclude: list = None
+        self.var_model = ""
+        self.var_class = ""
+        self.var_sn = []
+        self.var_power = []
+        self.var_load = []
+        self.var_lisn = []
+        self.var_exclude = []
 
     def input_testConfig(self):
         """输入测试配置"""
@@ -101,13 +101,13 @@ class ELEKTRA:
         else:
             self.history = {}
 
-        default_model: str = self.history.get("model", "")
-        default_class: str = self.history.get("class", "")
-        default_sn: list = self.history.get("sn", [])
-        default_power: list = self.history.get("power", [])
-        defualt_load: list = self.history.get("load", [])
-        defualt_lisn: list = self.history.get("lisn", [])
-        defualt_exclude: list = self.history.get("exclude", [""])
+        default_model = self.history.get("model", "")
+        default_class = self.history.get("class", "")
+        default_sn = self.history.get("sn", [])
+        default_power = self.history.get("power", [])
+        defualt_load = self.history.get("load", [])
+        defualt_lisn = self.history.get("lisn", [])
+        defualt_exclude = self.history.get("exclude", [""])
 
         input_class = (
             pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
@@ -121,6 +121,17 @@ class ELEKTRA:
         input_exclude = pmb.prompt(
             title="排除已测试条件:", rows=6, default="".join(defualt_exclude)
         )
+
+        if None in [
+            input_class,
+            input_model,
+            input_sn,
+            input_power,
+            input_load,
+            input_lisn,
+        ]:
+            pmb.alert("输入参数不能为空", "错误")
+            sys.exit()
 
         self.history["class"] = self.var_class = input_class
         self.history["model"] = self.var_model = input_model
@@ -154,6 +165,8 @@ class ELEKTRA:
         click_image(self.pic_class, clicks=2)
         click_image(self.pic_peijian, wait_time=0.6)
         click_image(self.pic_ceshixinxi)
+        pg.scroll(-2)
+        pg.scroll(-2)
         pg.scroll(-2)
         pg.scroll(-2)
         pg.scroll(-2)
@@ -299,12 +312,8 @@ class ELEKTRA:
                 continue
 
             foreground()
-            minTime = 0.2
-            if (
-                lisn == "L"
-                and exists_image(self.pic_ln_n, minTime)
-                or lisn == "N"
-                and exists_image(self.pic_ln_l1, minTime)
+            if (lisn == "L" and not exists_image(self.pic_ln_l1, confidence=0.93)) or (
+                lisn == "N" and not exists_image(self.pic_ln_n, confidence=0.93)
             ):
                 click_image(self.pic_lisn_n, wait_time=0.3)
                 click_image(self.pic_lisn_l, wait_time=0.1)
@@ -397,7 +406,12 @@ def TimeCount(func):
         start_time = time.time()
         func(*args, **kwargs)
         end_time = time.time()
-        print(f"程序运行时间：{end_time - start_time:.2f}秒")
+        total_time = end_time - start_time
+        pmb.confirm(
+            f"程序运行时间：{total_time//60:.0f}分{total_time%60:.2f}秒",
+            "运行时间",
+            ["已完成"],
+        )
 
     return wrapper
 
