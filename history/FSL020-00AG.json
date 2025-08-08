@@ -1,0 +1,16 @@
+{
+    "save_path": "D:/Desktop/Lucas-EMC/WorkDir",
+    "model": "FSL020-00AG",
+    "class": "Class A",
+    "method": "LOAD_POWER_UUT",
+    "power": [
+        "220V"
+    ],
+    "lisn": [
+        "L",
+        "N"
+    ],
+    "sn": "123\n124\n125",
+    "load": "100% 50% 25%",
+    "excludes": ""
+}

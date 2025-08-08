@@ -1,3 +1,4 @@
+import typing
 from catuo import *
 from change_lang import change_language
 
@@ -5,6 +6,7 @@ import pygetwindow as gw
 import json
 import time
 import sys
+import os
 
 
 def load_history():
@@ -15,7 +17,7 @@ def load_history():
         return {}
 
 
-def save_history(history):
+def saveHistory(history):
     try:
         with open("history.json", "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=4)
@@ -46,32 +48,35 @@ class ELEKTRA:
 
     def init_pic(self):
         """初始化图片"""
-        self.pic_saveTest = ".\\Pic_lib\\SaveTest.png"
+        self.pic_ceshixinxi = ".\\Pic_lib\\CeShiXinXi_closed.png"
         self.pic_classA = ".\\Pic_lib\\ClassA.png"
         self.pic_classB = ".\\Pic_lib\\ClassB.png"
-        self.pic_peijian = ".\\Pic_lib\\PeijianSheZhi.png"
-        self.pic_ceshixinxi = ".\\Pic_lib\\CeShiXinXi_closed.png"
-        self.pic_neirong = ".\\Pic_lib\\NeiRong.png"
-        self.pic_model = ".\\Pic_lib\\Model.png"
-        self.pic_sn = ".\\Pic_lib\\SN.png"
-        self.pic_power = ".\\Pic_lib\\Power.png"
-        self.pic_load = ".\\Pic_lib\\Load.png"
-        self.pic_run = ".\\Pic_lib\\Run.png"
-        self.pic_ln_l1 = ".\\Pic_lib\\NL_L.png"
-        self.pic_ln_n = ".\\Pic_lib\\NL_N.png"
+        self.pic_exportcsv = ".\\Pic_lib\\ExportCsv.png"
+        self.pic_exportrp = ".\\Pic_lib\\ExportRp.png"
         self.pic_lisn_l = ".\\Pic_lib\\L1.png"
         self.pic_lisn_n = ".\\Pic_lib\\N.png"
-        self.pic_zhongyaodian = ".\\Pic_lib\\ZhongYaodian.png"
+        self.pic_ln_l1 = ".\\Pic_lib\\NL_L.png"
+        self.pic_ln_n = ".\\Pic_lib\\NL_N.png"
+        self.pic_load = ".\\Pic_lib\\Load.png"
+        self.pic_model = ".\\Pic_lib\\Model.png"
+        self.pic_neirong = ".\\Pic_lib\\NeiRong.png"
+        self.pic_peijian = ".\\Pic_lib\\PeijianSheZhi.png"
+        self.pic_power = ".\\Pic_lib\\Power.png"
         self.pic_qingchu = ".\\Pic_lib\\QingChu.png"
         self.pic_queren = ".\\Pic_lib\\QueRen1.png"
         self.pic_qujian = ".\\Pic_lib\\QuJian.png"
+        self.pic_result_table = ".\\Pic_lib\\ResultTable.png"
+        self.pic_run = ".\\Pic_lib\\Run.png"
+        self.pic_save_as = ".\\Pic_lib\\SaveAs.png"
         self.pic_saverp = ".\\Pic_lib\\SaveRp.png"
+        self.pic_saveTest = ".\\Pic_lib\\SaveTest.png"
+        self.pic_sn = ".\\Pic_lib\\SN.png"
         self.pic_wenjianming = ".\\Pic_lib\\WenJianMing.png"
-        self.six_1 = ".\\Pic_lib\\Six_1.png"
-        self.six_2 = ".\\Pic_lib\\Six_2.png"
+        self.pic_zhongyaodian = ".\\Pic_lib\\ZhongYaodian.png"
         self.seven_1 = ".\\Pic_lib\\seven_1.png"
         self.seven_2 = ".\\Pic_lib\\seven_2.png"
-        self.pic_exportrp = ".\\Pic_lib\\ExportRp.png"
+        self.six_1 = ".\\Pic_lib\\Six_1.png"
+        self.six_2 = ".\\Pic_lib\\Six_2.png"
 
     def init_var(self):
         """初始化变量"""
@@ -84,76 +89,89 @@ class ELEKTRA:
         self.var_load = []
         self.var_lisn = []
         self.var_exclude = []
+        self.temp_path = r"D:\Desktop\temp"
 
-    def input_testConfig(self):
+    def inputTestConfig(self, info=None):
         """输入测试配置"""
-        input_method = pmb.confirm(
-            title="测试条件顺序",
-            buttons=["SN_LOAD_POWER", "LOAD_SN_POWER", "SN_POWER_LOAD"],
-        )
-        if not input_method:
-            pmb.alert("未选择测试条件顺序", "退出")
-            sys.exit()
+        if info is None:
+            input_method = pmb.confirm(
+                title="测试条件顺序",
+                buttons=["POWER_LOAD_UUT", "LOAD_POWER_UUT", "POWER_UUT_LOAD"],
+            )
+            if not input_method:
+                pmb.alert("未选择测试条件顺序", "退出")
+                sys.exit()
+            self.method = input_method
 
-        loaded_history = load_history()
-        if input_method in loaded_history:
-            self.history = loaded_history[input_method]
+            loaded_history = load_history()
+            if input_method in loaded_history:
+                self.history = loaded_history[input_method]
+            else:
+                self.history = {}
+
+            default_model = self.history.get("model", "")
+            default_class = self.history.get("class", "")
+            default_sn = self.history.get("sn", [])
+            default_power = self.history.get("power", [])
+            defualt_load = self.history.get("load", [])
+            defualt_lisn = self.history.get("lisn", [])
+            defualt_exclude = self.history.get("exclude", [""])
+
+            input_model = pmb.prompt(title="机种型号:", default=default_model)
+            input_class = (
+                pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
+                or default_class
+            )
+            input_sn = pmb.prompt(title="SN:", rows=6, default=default_sn)
+            input_power = pmb.prompt(title="单体的Vac:", default=default_power)
+            input_load = pmb.prompt(title="单体负载:", default=defualt_load)
+            input_lisn = pmb.prompt(title="LISN顺序:", default=defualt_lisn)
+            input_exclude = pmb.prompt(
+                title="排除已测试条件:", rows=6, default="".join(defualt_exclude)
+            )
+            if None in [
+                input_class,
+                input_model,
+                input_sn,
+                input_power,
+                input_load,
+                input_lisn,
+            ]:
+                pmb.alert("输入参数不能为空", "错误")
+                sys.exit()
+            self.history["class"] = self.var_class = input_class
+            self.history["model"] = self.var_model = input_model
+            self.history["sn"] = self.var_sn = input_sn.split()
+            self.history["power"] = self.var_power = input_power.split(" ")
+            self.history["load"] = self.var_load = input_load.split(" ")
+            self.history["lisn"] = self.var_lisn = input_lisn.split(" ")
+            self.history["exclude"] = self.var_exclude = input_exclude.split()
+
+            loaded_history[input_method] = self.history
+            saveHistory(loaded_history)
         else:
-            self.history = {}
+            self.var_model = info["model"]
+            self.var_class = info["class"]
+            self.var_sn = info["sn"].split()
+            self.var_power = info["power"]
+            self.var_load = info["load"].split()
+            self.var_lisn = info["lisn"]
+            self.var_exclude = info["excludes"]
+            self.method = info["method"]
 
-        default_model = self.history.get("model", "")
-        default_class = self.history.get("class", "")
-        default_sn = self.history.get("sn", [])
-        default_power = self.history.get("power", [])
-        defualt_load = self.history.get("load", [])
-        defualt_lisn = self.history.get("lisn", [])
-        defualt_exclude = self.history.get("exclude", [""])
+        self.startTest(self.method)
 
-        input_class = (
-            pmb.confirm(title="测试标准:", buttons=["Class A", "Class B"])
-            or default_class
-        )
-        input_model = pmb.prompt(title="机种型号:", default=default_model)
-        input_sn = pmb.prompt(title="SN:", rows=6, default=default_sn)
-        input_power = pmb.prompt(title="单体的Vac:", default=default_power)
-        input_load = pmb.prompt(title="单体负载:", default=defualt_load)
-        input_lisn = pmb.prompt(title="LISN顺序:", default=defualt_lisn)
-        input_exclude = pmb.prompt(
-            title="排除已测试条件:", rows=6, default="".join(defualt_exclude)
-        )
-
-        if None in [
-            input_class,
-            input_model,
-            input_sn,
-            input_power,
-            input_load,
-            input_lisn,
-        ]:
-            pmb.alert("输入参数不能为空", "错误")
-            sys.exit()
-
-        self.history["class"] = self.var_class = input_class
-        self.history["model"] = self.var_model = input_model
-        self.history["sn"] = self.var_sn = input_sn.split()
-        self.history["power"] = self.var_power = input_power.split(" ")
-        self.history["load"] = self.var_load = input_load.split(" ")
-        self.history["lisn"] = self.var_lisn = input_lisn.split(" ")
-        self.history["exclude"] = self.var_exclude = input_exclude.split()
-
-        loaded_history[input_method] = self.history
-        save_history(loaded_history)
-
-        if input_method == "SN_LOAD_POWER":
-            self.SN_LOAD_POWER()
-        elif input_method == "LOAD_SN_POWER":
-            self.LOAD_SN_POWER()
-        elif input_method == "SN_POWER_LOAD":
-            self.SN_POWER_LOAD()
+    def startTest(self, method=None):
+        if method == "POWER_LOAD_UUT":
+            self.POWER_LOAD_UUT()
+        elif method == "LOAD_POWER_UUT":
+            self.LOAD_POWER_UUT()
+        elif method == "POWER_UUT_LOAD":
+            self.POWER_UUT_LOAD()
         else:
             pmb.alert("未知的测试条件顺序", "错误")
 
-    def set_testConfig(self):
+    def setTestConfig(self):
         """设置测试配置"""
         click_image(self.pic_saveTest)
 
@@ -176,7 +194,7 @@ class ELEKTRA:
 
         pg.typewrite(self.var_model)
 
-    def SN_LOAD_POWER(self):
+    def POWER_LOAD_UUT(self):
         """ """
         foreground()
 
@@ -185,7 +203,7 @@ class ELEKTRA:
         snNoChange = False
 
         # return
-        self.set_testConfig()
+        self.setTestConfig()
 
         for sn in self.var_sn:
             click_image(self.pic_sn, ["left", (600, 0)])
@@ -219,7 +237,7 @@ class ELEKTRA:
             self.var_load.reverse()
             loadNoChange = True
 
-    def LOAD_SN_POWER(self):
+    def LOAD_POWER_UUT(self):
         """ """
         foreground()
 
@@ -228,7 +246,7 @@ class ELEKTRA:
         snNoChange = False
 
         # return
-        self.set_testConfig()
+        self.setTestConfig()
 
         for load in self.var_load:
             click_image(self.pic_load, ["left", (600, 0)])
@@ -261,7 +279,7 @@ class ELEKTRA:
             self.var_sn.reverse()
             snNoChange = True
 
-    def SN_POWER_LOAD(self):
+    def POWER_UUT_LOAD(self):
         foreground()
 
         powerNoChange = False
@@ -269,7 +287,7 @@ class ELEKTRA:
         snNoChange = False
 
         # return
-        self.set_testConfig()
+        self.setTestConfig()
         for sn in self.var_sn:
             click_image(self.pic_sn, ["left", (600, 0)])
             pg.typewrite(sn)
@@ -341,7 +359,8 @@ class ELEKTRA:
         click_image(self.pic_queren)
         click_image(self.pic_queren)
 
-        # TODO: 图像拽取
+        click_image(self.pic_zhongyaodian, ["up", (0, -5)], clicks=2)
+        click_image(self.pic_exportcsv, PLEFT)
         while True:
             PT_OK = pmb.confirm(
                 "重要点选择完成？",
@@ -400,6 +419,19 @@ class ELEKTRA:
         """移动鼠标到信息窗口的确认按钮位置。"""
         pg.moveTo(520, 290)
 
+    def saveOverview(self):
+        foreground()
+        click_image(self.pic_result_table, ["bottom", (0, 9)], clicks=2)
+        click_image(self.pic_exportcsv, ["top", (-20, -25)])
+        change_language("EN")
+        click_image(self.pic_save_as, ["top", (70, -36)])
+        pg.typewrite(self.temp_path)
+        pg.press("enter")
+        click_image(self.pic_wenjianming, ["right", (100, 0)])
+        pg.press("enter")
+        pg.press("enter")
+        pg.press("enter")
+
 
 def TimeCount(func):
     def wrapper(*args, **kwargs):
@@ -416,10 +448,11 @@ def TimeCount(func):
     return wrapper
 
 
-@TimeCount
+# @TimeCount
 def main():
     ato = ELEKTRA()
-    ato.input_testConfig()
+    # ato.input_testConfig()
+    ato.saveOverview()
 
 
 if __name__ == "__main__":

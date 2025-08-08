@@ -1,0 +1,13 @@
+{
+    "save_path": "D:/Desktop/Lucas-EMC/WorkDir/FSL031-243G",
+    "model": "FSL031-243G",
+    "class": "Class B",
+    "method": "LOAD_POWER_UUT",
+    "power": [
+        "110V",
+        "220V"
+    ],
+    "sn": "",
+    "load": "",
+    "excludes": ""
+}
