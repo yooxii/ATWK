@@ -1,0 +1,17 @@
+{
+    "save_path": "D:/Desktop/Lucas-EMC/WorkDir",
+    "model": "OFM001-HF1G",
+    "class": "Class A",
+    "method": "LOAD_POWER_UUT",
+    "power": [
+        "110V",
+        "220V"
+    ],
+    "lisn": [
+        "L",
+        "N"
+    ],
+    "sn": "ADG2932003S\nADG2932003R\nADG2932003T",
+    "load": "25% 50% 100%",
+    "excludes": ""
+}

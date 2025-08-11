@@ -84,6 +84,10 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
                 elif config.get("method", "POWER_LOAD_UUT") == "POWER_UUT_LOAD":
                     self.power_uut_load.setChecked(True)
 
+                self.power_110V.setChecked(True)
+                self.power_220V.setChecked(True)
+                self.lisn_l.setChecked(True)
+                self.lisn_n.setChecked(True)
                 if "110V" not in config.get("power", []):
                     self.power_110V.setChecked(False)
                 if "220V" not in config.get("power", []):

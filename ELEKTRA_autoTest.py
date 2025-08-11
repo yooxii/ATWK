@@ -89,9 +89,8 @@ class ELEKTRA:
         self.var_load = []
         self.var_lisn = []
         self.var_exclude = []
-        self.temp_path = r"D:\Desktop\temp"
 
-    def inputTestConfig(self, info=None):
+    def inputTestConfig(self, info: dict = None):
         """输入测试配置"""
         if info is None:
             input_method = pmb.confirm(
@@ -150,6 +149,7 @@ class ELEKTRA:
             loaded_history[input_method] = self.history
             saveHistory(loaded_history)
         else:
+            self.save_path = info["save_path"]
             self.var_model = info["model"]
             self.var_class = info["class"]
             self.var_sn = info["sn"].split()
@@ -158,15 +158,20 @@ class ELEKTRA:
             self.var_lisn = info["lisn"]
             self.var_exclude = info["excludes"]
             self.method = info["method"]
+        self.save_path = os.path.join(self.save_path, self.var_model)
+        os.makedirs(self.save_path, exist_ok=True)
 
         self.startTest(self.method)
 
     def startTest(self, method=None):
         if method == "POWER_LOAD_UUT":
+            print(0)
             self.POWER_LOAD_UUT()
         elif method == "LOAD_POWER_UUT":
+            print(1)
             self.LOAD_POWER_UUT()
         elif method == "POWER_UUT_LOAD":
+            print(2)
             self.POWER_UUT_LOAD()
         else:
             pmb.alert("未知的测试条件顺序", "错误")
@@ -350,6 +355,8 @@ class ELEKTRA:
 
     def selectPoint(self, lisn_changed):
         """选择测试点"""
+        import findmin
+
         click_image(self.pic_zhongyaodian, clicks=2)
         click_image(self.pic_run)
 
@@ -359,8 +366,12 @@ class ELEKTRA:
         click_image(self.pic_queren)
         click_image(self.pic_queren)
 
-        click_image(self.pic_zhongyaodian, ["up", (0, -5)], clicks=2)
-        click_image(self.pic_exportcsv, PLEFT)
+        self.saveOverview()
+        click_image(self.pic_zhongyaodian, clicks=2)
+        freq = findmin.main(self.save_path, 0.3)
+        click_image(self.pic_qujian, ["bottom", (80, 20)])
+        pg.typewrite(freq)
+
         while True:
             PT_OK = pmb.confirm(
                 "重要点选择完成？",
@@ -389,8 +400,8 @@ class ELEKTRA:
                         "请选择六个重要点", "重要点选取过少", timeout=ALERT_TIMEOUT
                     )
 
-        click_image(self.pic_qujian, ["bottom", (0, 20)])
-        pg.typewrite("1\n2\n3\n4\n5\n6\n")
+        # click_image(self.pic_qujian, ["bottom", (0, 20)])
+        # pg.typewrite("1\n2\n3\n4\n5\n6\n")
 
     def saveReport(self):
         """保存报告"""
@@ -399,11 +410,15 @@ class ELEKTRA:
         click_image(self.pic_exportrp, ["left", (10, 0)], timeout=10)
         click_image(self.pic_exportrp, ["right", (-10, 0)])
 
-        if self.var_first:
-            self.var_first = False
-            pmb.confirm("请选择保存位置", "选择位置", ["已完成"])
         foreground()
         change_language("EN")
+        if self.var_first:
+            click_image(self.pic_result_table, ["bottom", (0, 9)], clicks=2)
+            click_image(self.pic_exportcsv, ["top", (-20, -25)])
+            click_image(self.pic_save_as, ["top", (70, -36)])
+            pg.typewrite(self.save_path)
+            pg.press("enter")
+
         click_image(self.pic_wenjianming, ["right", (100, 0)])
 
         pg.keyDown("ctrl")
@@ -421,13 +436,17 @@ class ELEKTRA:
 
     def saveOverview(self):
         foreground()
+
         click_image(self.pic_result_table, ["bottom", (0, 9)], clicks=2)
         click_image(self.pic_exportcsv, ["top", (-20, -25)])
-        change_language("EN")
-        click_image(self.pic_save_as, ["top", (70, -36)])
-        pg.typewrite(self.temp_path)
-        pg.press("enter")
-        click_image(self.pic_wenjianming, ["right", (100, 0)])
+        if self.var_first:
+            change_language("EN")
+            click_image(self.pic_save_as, ["top", (70, -36)])
+            pg.typewrite(self.save_path)
+            pg.press("enter")
+            click_image(self.pic_wenjianming, ["right", (100, 0)])
+            self.var_first = False
+        pg.sleep(0.3)
         pg.press("enter")
         pg.press("enter")
         pg.press("enter")

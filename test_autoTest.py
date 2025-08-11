@@ -10,7 +10,7 @@ class TestELEKTRA(unittest.TestCase):
         foreground()
 
     def test_pic(self):
-        self.assertTrue(exists_image(self.elektra.pic_exportcsv, confidence=0.93))
+        moveTo_image(self.elektra.pic_qujian, ["bottom", (80, 20)])
 
 
 if __name__ == "__main__":
