@@ -1,8 +1,8 @@
 {
     "save_path": "D:/Desktop/Lucas-EMC/WorkDir",
-    "model": "FSL020-00AG",
-    "class": "Class A",
-    "method": "LOAD_POWER_UUT",
+    "model": "FSF019-612G",
+    "class": "Class B",
+    "method": "POWER_LOAD_UUT",
     "power": [
         "110V",
         "220V"
@@ -11,7 +11,7 @@
         "L",
         "N"
     ],
-    "sn": "123\n124\n125",
+    "sn": "FSF0192531038462\nFSF0192531038492\nFSF0192531038432",
     "load": "100% 50% 25%",
     "excludes": ""
 }

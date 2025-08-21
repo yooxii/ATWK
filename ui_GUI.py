@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'GUISYPYXj.ui'
+## Form generated from reading UI file 'GUIzrgvex.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.3
 ##
@@ -233,6 +233,7 @@ class Ui_Dialog(object):
         self.sn.setMaximumSize(QSize(16777215, 90))
         self.sn.setSizeIncrement(QSize(0, 90))
         self.sn.setBaseSize(QSize(0, 90))
+        self.sn.setAcceptRichText(True)
 
         self.horizontalLayout_9.addWidget(self.sn)
 
@@ -297,6 +298,16 @@ class Ui_Dialog(object):
 
         self.horizontalLayout_11.addWidget(self.btn_start)
 
+        self.btn_stop = QPushButton(self.horizontalWidget)
+        self.btn_stop.setObjectName(u"btn_stop")
+        self.btn_stop.setEnabled(True)
+        sizePolicy2.setHeightForWidth(self.btn_stop.sizePolicy().hasHeightForWidth())
+        self.btn_stop.setSizePolicy(sizePolicy2)
+        self.btn_stop.setMinimumSize(QSize(0, 30))
+        self.btn_stop.setMaximumSize(QSize(80, 30))
+
+        self.horizontalLayout_11.addWidget(self.btn_stop)
+
         self.btn_quit = QPushButton(self.horizontalWidget)
         self.btn_quit.setObjectName(u"btn_quit")
         self.btn_quit.setMinimumSize(QSize(0, 30))
@@ -336,6 +347,7 @@ class Ui_Dialog(object):
         self.label_load.setText(QCoreApplication.translate("Dialog", u"\u8d1f\u8f7d\uff1a", None))
         self.label_exclude.setText(QCoreApplication.translate("Dialog", u"\u6392\u9664\u9879\u76ee\uff1a", None))
         self.btn_start.setText(QCoreApplication.translate("Dialog", u"\u5f00\u59cb", None))
+        self.btn_stop.setText(QCoreApplication.translate("Dialog", u"\u7ec8\u6b62", None))
         self.btn_quit.setText(QCoreApplication.translate("Dialog", u"\u9000\u51fa", None))
     # retranslateUi
 

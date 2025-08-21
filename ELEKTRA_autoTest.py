@@ -365,10 +365,12 @@ class ELEKTRA:
 
         click_image(self.pic_queren)
         click_image(self.pic_queren)
+        if self.var_first:
+            click_image(self.pic_queren)
 
         self.saveOverview()
         click_image(self.pic_zhongyaodian, clicks=2)
-        freq = findmin.main(self.save_path, 0.3)
+        freq = findmin.main(self.save_path, 0.2)
         click_image(self.pic_qujian, ["bottom", (80, 20)])
         pg.typewrite(freq)
 

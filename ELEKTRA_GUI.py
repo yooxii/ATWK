@@ -19,6 +19,7 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
 
         self.model_name.editTextChanged.connect(self.modelUpdate)
         self.btn_start.clicked.connect(self.startTest)
+        self.btn_stop.clicked.connect(self.stopTest)
         self.btnSavepath.clicked.connect(self.selectSavePath)
 
     def selectSavePath(self):
@@ -103,10 +104,14 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
                 self.pathEdit.setText(config.get("save_path", ""))
 
     def startTest(self):
-        self.hide()
+        self.showMinimized()
         config = self.saveConfig()
         self.ato.inputTestConfig(config)
-        self.show()
+
+    def stopTest(self):
+        self.saveConfig()
+        print("quit")
+        sys.exit()
 
 
 @TimeCount
