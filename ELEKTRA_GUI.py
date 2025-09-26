@@ -2,8 +2,28 @@ from ELEKTRA_autoTest import *
 from ui_GUI import *
 
 from PySide6.QtWidgets import QFileDialog
+from PySide6.QtCore import QThread
 
 import json
+
+
+class ELEKTRA_QThread(QThread):
+    def __init__(self, config):
+        self.ato = ELEKTRA()
+        self.config = config
+        super().__init__()
+
+    def run(self):
+        self.ato.inputTestConfig(self.config)
+        self.ato.startTest()
+
+    def stop(self):
+        # from mypymsgbox import boxRoot
+
+        # if boxRoot:
+        #     boxRoot.destroy()
+        #     print("boxRoot destroyed")
+        self.ato.stop = True
 
 
 class ELEKTRA_GUI(QDialog, Ui_Dialog):
@@ -15,7 +35,8 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
         self.loadHistoryModel()
         self.model_name.addItems(self.history_files)
         self.loadConfig()
-        self.ato = ELEKTRA()
+
+        self.elektra_qthread = None
 
         self.model_name.editTextChanged.connect(self.modelUpdate)
         self.btn_start.clicked.connect(self.startTest)
@@ -104,14 +125,25 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
                 self.pathEdit.setText(config.get("save_path", ""))
 
     def startTest(self):
+        if self.elektra_qthread:
+            return
         self.showMinimized()
         config = self.saveConfig()
-        self.ato.inputTestConfig(config)
+        self.elektra_qthread = ELEKTRA_QThread(config)
+        self.elektra_qthread.start()
 
     def stopTest(self):
         self.saveConfig()
-        print("quit")
-        sys.exit()
+        print("stop")
+        if not self.elektra_qthread:
+            print("no thread")
+            return
+        self.elektra_qthread.stop()
+
+    def closeEvent(self, event):
+        if self.elektra_qthread:
+            self.elektra_qthread.stop()
+        super().closeEvent(event)
 
 
 @TimeCount

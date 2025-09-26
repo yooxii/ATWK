@@ -5,7 +5,7 @@ import os
 gap = 0.3
 
 
-def main(path, gap):
+def findmin(path, gap):
     df = pd.read_csv(
         os.path.join(path, "Overview.csv"),
         header=None,
@@ -42,3 +42,17 @@ def main(path, gap):
     for r in res:
         ret += f"{r:.3f}\n"
     return ret
+
+
+def checkTestPass(path):
+    if not os.path.exists(path):
+        return False
+    df = pd.read_csv(
+        os.path.join(path, "CriticalPoint.csv"),
+        header=None,
+        usecols=[1, 4, 7],
+    )
+    if len(df) == 2:
+        return True
+    else:
+        return False

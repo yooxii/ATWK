@@ -10,7 +10,8 @@ class TestELEKTRA(unittest.TestCase):
         foreground()
 
     def test_pic(self):
-        moveTo_image(self.elektra.pic_qujian, ["bottom", (80, 20)])
+        moveTo_image(self.elektra.pic_wenjianming)
+        # pg.press("123")
 
 
 if __name__ == "__main__":

@@ -3,10 +3,26 @@ from catuo import *
 from change_lang import change_language
 
 import pygetwindow as gw
+import tkinter as tk
 import json
 import time
 import sys
 import os
+
+
+def TimeCount(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        func(*args, **kwargs)
+        end_time = time.time()
+        total_time = end_time - start_time
+        pmb.confirm(
+            f"程序运行时间：{total_time//60:.0f}分{total_time%60:.2f}秒",
+            "运行时间",
+            ["已完成"],
+        )
+
+    return wrapper
 
 
 def load_history():
@@ -73,14 +89,17 @@ class ELEKTRA:
         self.pic_sn = ".\\Pic_lib\\SN.png"
         self.pic_wenjianming = ".\\Pic_lib\\WenJianMing.png"
         self.pic_zhongyaodian = ".\\Pic_lib\\ZhongYaodian.png"
-        self.seven_1 = ".\\Pic_lib\\seven_1.png"
-        self.seven_2 = ".\\Pic_lib\\seven_2.png"
-        self.six_1 = ".\\Pic_lib\\Six_1.png"
-        self.six_2 = ".\\Pic_lib\\Six_2.png"
+        self.pic_zuizhongjieguo = ".\\Pic_lib\\ZuiZhongJieGuo.png"
+        self.pic_seven_1 = ".\\Pic_lib\\seven_1.png"
+        self.pic_seven_2 = ".\\Pic_lib\\seven_2.png"
+        self.pic_six_1 = ".\\Pic_lib\\Six_1.png"
+        self.pic_six_2 = ".\\Pic_lib\\Six_2.png"
+        self.pic_testpass = ".\\Pic_lib\\TestPass.png"
 
     def init_var(self):
         """初始化变量"""
         self.var_first: bool = True
+        self.stop = False
 
         self.var_model = ""
         self.var_class = ""
@@ -154,24 +173,25 @@ class ELEKTRA:
             self.var_class = info["class"]
             self.var_sn = info["sn"].split()
             self.var_power = info["power"]
-            self.var_load = info["load"].split()
+            self.var_load = [
+                l for l in info["load"].split() if l not in ["", "\n", "\t"]
+            ]
             self.var_lisn = info["lisn"]
             self.var_exclude = info["excludes"]
             self.method = info["method"]
         self.save_path = os.path.join(self.save_path, self.var_model)
         os.makedirs(self.save_path, exist_ok=True)
 
-        self.startTest(self.method)
-
+    @TimeCount
     def startTest(self, method=None):
+        self.stop = False
+        if method is None:
+            method = self.method
         if method == "POWER_LOAD_UUT":
-            print(0)
             self.POWER_LOAD_UUT()
         elif method == "LOAD_POWER_UUT":
-            print(1)
             self.LOAD_POWER_UUT()
         elif method == "POWER_UUT_LOAD":
-            print(2)
             self.POWER_UUT_LOAD()
         else:
             pmb.alert("未知的测试条件顺序", "错误")
@@ -188,11 +208,8 @@ class ELEKTRA:
         click_image(self.pic_class, clicks=2)
         click_image(self.pic_peijian, wait_time=0.6)
         click_image(self.pic_ceshixinxi)
-        pg.scroll(-2)
-        pg.scroll(-2)
-        pg.scroll(-2)
-        pg.scroll(-2)
-        pg.scroll(-2)
+        for _ in range(5):
+            pg.scroll(-2)
 
         change_language("EN")
         click_image(self.pic_model, ["left", (600, 0)])
@@ -206,6 +223,7 @@ class ELEKTRA:
         powerNoChange = False
         loadNoChange = False
         snNoChange = False
+        message = "已切换到 "
 
         # return
         self.setTestConfig()
@@ -214,41 +232,55 @@ class ELEKTRA:
             click_image(self.pic_sn, ["left", (600, 0)])
 
             pg.typewrite(sn)
-            self.movetoQueRen()
-            pmb.confirm("确认已切换到" + sn, "确认窗口", ["已确认"])
+            message += f"- {sn} "
 
             for load in self.var_load:
+                if self.stop:
+                    return
                 if not loadNoChange:
                     click_image(self.pic_load, ["left", (600, 0)])
 
                     pg.typewrite(load)
-                    self.movetoQueRen()
-                    pmb.confirm("确认已切换到" + load, "确认窗口", ["已确认"])
+                    self.clickSpace()
+                    message += f"- {load} "
                 else:
                     loadNoChange = False
 
                 for power in self.var_power:
+                    if self.stop:
+                        return
                     if not powerNoChange:
                         click_image(self.pic_power, ["left", (600, 0)])
                         pg.typewrite(power)
-                        self.movetoQueRen()
-                        pmb.confirm("确认已切换到" + power, "确认窗口", ["已确认"])
+                        self.clickSpace()
+                        message += f"- {power} "
                     else:
                         powerNoChange = False
+
+                    self.movetoQueRen()
+                    pmb.confirm(
+                        message,
+                        "确认窗口",
+                        ["已确认"],
+                    )
                     self.loop_lisn(sn, load, power)
+                    message = "已切换到 "
+                    if self.stop:
+                        return
 
                 self.var_power.reverse()
                 powerNoChange = True
             self.var_load.reverse()
             loadNoChange = True
 
-    def LOAD_POWER_UUT(self):
+    def POWER_UUT_LOAD(self):
         """ """
         foreground()
 
         powerNoChange = False
         loadNoChange = False
         snNoChange = False
+        message = "已切换到 "
 
         # return
         self.setTestConfig()
@@ -256,81 +288,114 @@ class ELEKTRA:
         for load in self.var_load:
             click_image(self.pic_load, ["left", (600, 0)])
             pg.typewrite(load)
-            self.movetoQueRen()
-            pmb.confirm("确认已切换到" + load, "确认窗口", ["已确认"])
+            self.clickSpace()
+            message += f"- {load} "
 
             for sn in self.var_sn:
+                if self.stop:
+                    return
                 if not snNoChange:
                     click_image(self.pic_sn, ["left", (600, 0)])
                     pg.typewrite(sn)
-                    self.movetoQueRen()
-                    pmb.confirm("确认已切换到" + sn, "确认窗口", ["已确认"])
+                    self.clickSpace()
+                    message += f"- {sn} "
                 else:
                     snNoChange = False
 
                 for power in self.var_power:
+                    if self.stop:
+                        return
                     if not powerNoChange:
                         click_image(self.pic_power, ["left", (600, 0)])
                         pg.typewrite(power)
-                        self.movetoQueRen()
-                        pmb.confirm("确认已切换到" + power, "确认窗口", ["已确认"])
+                        self.clickSpace()
+                        message += f"- {power} "
                     else:
                         powerNoChange = False
 
+                    self.movetoQueRen()
+                    pmb.confirm(
+                        message,
+                        "确认窗口",
+                        ["已确认"],
+                    )
                     self.loop_lisn(sn, load, power)
+                    message = "已切换到 "
+                    if self.stop:
+                        return
 
                 self.var_power.reverse()
                 powerNoChange = True
             self.var_sn.reverse()
             snNoChange = True
 
-    def POWER_UUT_LOAD(self):
+    def LOAD_POWER_UUT(self):
         foreground()
 
         powerNoChange = False
         loadNoChange = False
         snNoChange = False
 
+        message = "已切换到 "
+
         # return
         self.setTestConfig()
         for sn in self.var_sn:
             click_image(self.pic_sn, ["left", (600, 0)])
             pg.typewrite(sn)
-            self.movetoQueRen()
-            pmb.confirm("确认已切换到" + sn, "确认窗口", ["已确认"])
+            self.clickSpace()
+            message += f"- {sn} "
 
             for power in self.var_power:
+                if self.stop:
+                    return
                 if not powerNoChange:
                     click_image(self.pic_power, ["left", (600, 0)])
                     pg.typewrite(power)
-                    self.movetoQueRen()
-                    pmb.confirm("确认已切换到" + power, "确认窗口", ["已确认"])
+                    self.clickSpace()
+                    message += f"- {power} "
                 else:
                     powerNoChange = False
 
                 for load in self.var_load:
+                    if self.stop:
+                        return
                     if not loadNoChange:
                         click_image(self.pic_load, ["left", (600, 0)])
                         pg.typewrite(load)
-                        self.movetoQueRen()
-                        pmb.confirm("确认已切换到" + load, "确认窗口", ["已确认"])
+                        self.clickSpace()
+                        message += f"- {load} "
                     else:
                         loadNoChange = False
 
+                    self.movetoQueRen()
+                    pmb.confirm(
+                        message,
+                        "确认窗口",
+                        ["已确认"],
+                    )
                     self.loop_lisn(sn, load, power)
+                    message = "已切换到 "
+                    if self.stop:
+                        return
 
                 self.var_load.reverse()
                 loadNoChange = True
+
             self.var_power.reverse()
             powerNoChange = True
 
     def loop_lisn(self, sn, load, power):
         """LISN循环"""
         for lisn in self.var_lisn:
+            if self.stop:
+                return
             self.testItem = f"{sn}-{power}-{load}-{lisn}"
             if self.testItem in self.var_exclude:
                 pmb.alert(
-                    f"{self.testItem} 已测试过，跳过", "测试提示", timeout=ALERT_TIMEOUT
+                    f"{self.testItem} 已测试过，跳过",
+                    "测试提示",
+                    timeout=ALERT_TIMEOUT,
                 )
                 continue
 
@@ -348,59 +413,101 @@ class ELEKTRA:
                 self.movetoQueRen()
                 pmb.confirm("请切换到" + lisn, "确认窗口", ["已确认"])
 
+            if self.stop:
+                return
             self.selectPoint(lisn_changed)
+            if self.stop:
+                return
             self.saveReport()
 
         self.var_lisn.reverse()
 
     def selectPoint(self, lisn_changed):
         """选择测试点"""
-        import findmin
+        import utils
 
         click_image(self.pic_zhongyaodian, clicks=2)
-        click_image(self.pic_run)
-
-        if lisn_changed:
-            click_image(self.pic_qingchu)
-
-        click_image(self.pic_queren)
-        click_image(self.pic_queren)
-        if self.var_first:
-            click_image(self.pic_queren)
-
-        self.saveOverview()
-        click_image(self.pic_zhongyaodian, clicks=2)
-        freq = findmin.main(self.save_path, 0.2)
-        click_image(self.pic_qujian, ["bottom", (80, 20)])
-        pg.typewrite(freq)
+        flag_testpass = False
 
         while True:
+            if self.stop:
+                return
+            if not flag_testpass:
+                click_image(self.pic_run)
+
+                if lisn_changed:
+                    click_image(self.pic_qingchu)
+
+                click_image(self.pic_queren)
+                click_image(self.pic_queren)
+                if self.var_first:
+                    click_image(self.pic_queren)
+
+                pg.sleep(1)  # (32,210)(320,540)
+
+                self.saveExportcsv()
+                isPass = utils.checkTestPass(self.save_path)
+
+                if not isPass:
+                    click_image(self.pic_zuizhongjieguo, clicks=2)
+                    click_image(self.pic_qujian, ["left", (-10, 35)], clicks=1)
+                    pg.keyDown("ctrl")
+                    pg.press("a")
+                    pg.keyUp("ctrl")
+                    pg.press("del")
+                    click_image(self.pic_zhongyaodian, clicks=2)
+                    click_image(self.pic_qujian, ["left", (-10, 35)], clicks=1)
+                    pg.keyDown("ctrl")
+                    pg.press("a")
+                    pg.keyUp("ctrl")
+                    pg.press("del")
+
+                click_image(self.pic_result_table, ["bottom", (0, 9)], clicks=2)
+                self.saveOverview()
+                click_image(self.pic_zhongyaodian, clicks=2)
+                freq = utils.findmin(self.save_path, 0.2)
+                click_image(self.pic_qujian, ["bottom", (80, 20)])
+                pg.typewrite(freq)
+                flag_testpass = True
+
             PT_OK = pmb.confirm(
-                "重要点选择完成？",
+                "选择此次测试结果？",
                 position="+1200+500",
                 topmost=True,
-                title="重要点选取",
-                buttons=["是", "否"],
+                title="测试完成确认",
+                buttons=["是", "重试"],
             )
-            if PT_OK == "是":
-                point_region = (300, 500, 700, 1000)
-                minTime = 0.2
-                foreground()
-                if exists_image(self.seven_1, minTime, point_region) or exists_image(
-                    self.seven_2, minTime, point_region
-                ):
-                    pmb.alert(
-                        "请最多选取六个重要点", "重要点选取过多", timeout=ALERT_TIMEOUT
-                    )
-                    continue
-                if exists_image(self.six_1, minTime, point_region) or exists_image(
-                    self.six_2, minTime, point_region
-                ):
-                    break
-                else:
-                    pmb.alert(
-                        "请选择六个重要点", "重要点选取过少", timeout=ALERT_TIMEOUT
-                    )
+
+            if PT_OK == "重试":
+                flag_testpass = False
+                continue
+            elif PT_OK == "是":
+                flag_testpass = True
+
+            if self.stop:
+                return
+            point_region = (300, 500, 700, 1000)
+            minTime = 0.2
+            foreground()
+            if exists_image(self.pic_seven_1, minTime, point_region) or exists_image(
+                self.pic_seven_2, minTime, point_region
+            ):
+                pmb.alert(
+                    "请最多选取六个重要点",
+                    "重要点选取过多",
+                    timeout=ALERT_TIMEOUT,
+                )
+                continue
+            if exists_image(self.pic_six_1, minTime, point_region) or exists_image(
+                self.pic_six_2, minTime, point_region
+            ):
+                break
+            else:
+                pmb.alert(
+                    "请选择六个重要点",
+                    "重要点选取过少",
+                    timeout=ALERT_TIMEOUT,
+                )
 
         # click_image(self.pic_qujian, ["bottom", (0, 20)])
         # pg.typewrite("1\n2\n3\n4\n5\n6\n")
@@ -415,18 +522,17 @@ class ELEKTRA:
         foreground()
         change_language("EN")
         if self.var_first:
-            click_image(self.pic_result_table, ["bottom", (0, 9)], clicks=2)
-            click_image(self.pic_exportcsv, ["top", (-20, -25)])
             click_image(self.pic_save_as, ["top", (70, -36)])
-            pg.typewrite(self.save_path)
+            pg.typewrite(str(self.save_path).replace("*", ""))
             pg.press("enter")
+            self.var_first = False
 
         click_image(self.pic_wenjianming, ["right", (100, 0)])
 
         pg.keyDown("ctrl")
         pg.press("a")
         pg.keyUp("ctrl")
-        pg.typewrite(self.testItem)
+        pg.typewrite(str(self.testItem).replace("*", ""))
         pg.press("enter")
 
         click_image(self.pic_class)
@@ -435,6 +541,10 @@ class ELEKTRA:
     def movetoQueRen(self):
         """移动鼠标到信息窗口的确认按钮位置。"""
         pg.moveTo(520, 290)
+
+    def clickSpace(self):
+        """移动鼠标到信息窗口的空白位置。"""
+        pg.click(1520, 800)
 
     def saveOverview(self):
         foreground()
@@ -448,32 +558,30 @@ class ELEKTRA:
             pg.press("enter")
             click_image(self.pic_wenjianming, ["right", (100, 0)])
             self.var_first = False
-        pg.sleep(0.3)
+        pg.sleep(0.5)
         pg.press("enter")
         pg.press("enter")
+
+    def saveExportcsv(self):
+        foreground()
+
+        click_image(self.pic_exportcsv, ["top", (55, -25)])
+        if self.var_first:
+            change_language("EN")
+            click_image(self.pic_save_as, ["top", (70, -36)])
+            pg.typewrite(self.save_path)
+            pg.press("enter")
+            click_image(self.pic_wenjianming, ["right", (100, 0)], confidence=0.9)
+            self.var_first = False
+        pg.sleep(0.5)
+        pg.press("enter")
         pg.press("enter")
 
 
-def TimeCount(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        func(*args, **kwargs)
-        end_time = time.time()
-        total_time = end_time - start_time
-        pmb.confirm(
-            f"程序运行时间：{total_time//60:.0f}分{total_time%60:.2f}秒",
-            "运行时间",
-            ["已完成"],
-        )
-
-    return wrapper
-
-
-# @TimeCount
 def main():
     ato = ELEKTRA()
     # ato.input_testConfig()
-    ato.saveOverview()
+    ato.clickSpace()
 
 
 if __name__ == "__main__":

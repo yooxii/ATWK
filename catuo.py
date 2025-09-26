@@ -1,7 +1,8 @@
 import pyautogui as pg
 import mypymsgbox as pmb
+import pygetwindow as gw
 
-from rich import inspect
+import sys
 
 # 定义常用位置
 PCENTER = ["center", (0, 0)]
@@ -16,6 +17,21 @@ PBOTTOM = ["bottom", (0, -5)]
 ALERT_TIMEOUT = 1000
 MOVETIMES = 5
 PIC_CONFIDENCE = 0.96
+
+
+def foreground(title: str):
+    """将窗口前置。
+
+    Args:
+        title (str, optional): 窗口标题.
+    """
+    try:
+        window = gw.getWindowsWithTitle(title)[0]
+        window.activate()
+        window.maximize()
+    except:
+        pmb.alert(f"找不到窗口:{title}", "错误")
+        sys.exit()
 
 
 def exists_image(
@@ -47,7 +63,12 @@ def exists_image(
 
 
 def moveTo_image(
-    image_path, position=PCENTER, duration=0.0, wait_time=0.3, timeout=5.0
+    image_path,
+    position=PCENTER,
+    duration=0.0,
+    wait_time=0.3,
+    timeout=5.0,
+    confidence=PIC_CONFIDENCE,
 ):
     """移动鼠标到屏幕图像匹配位置。
 
@@ -70,7 +91,7 @@ def moveTo_image(
     try:
         error_message = "未找到 " + image_path.split("\\")[-1]
         locat = pg.locateOnScreen(
-            image_path, minSearchTime=timeout, confidence=PIC_CONFIDENCE
+            image_path, minSearchTime=timeout, confidence=confidence
         )
     except Exception as e:
         pmb.alert(error_message, title="警告", timeout=ALERT_TIMEOUT)
@@ -98,7 +119,7 @@ def moveTo_image(
         # inspect(cp)
     except Exception as e:
         error_message += str(e)
-        pmb.alert(error_message, title="警告", timeout=ALERT_TIMEOUT)
+        pmb.alert(error_message, title="警告", topmost=True, timeout=ALERT_TIMEOUT)
         print(error_message)
         return False
 
@@ -111,10 +132,18 @@ def moveTo_image(
 
 
 def click_image(
-    image_path, position=PCENTER, duration=0.0, wait_time=0.3, timeout=5.0, clicks=1
+    image_path,
+    position=PCENTER,
+    duration=0.0,
+    wait_time=0.3,
+    timeout=5.0,
+    clicks=1,
+    confidence=PIC_CONFIDENCE,
 ):
-    if moveTo_image(image_path, position, duration, wait_time, timeout):
+    if moveTo_image(image_path, position, duration, wait_time, timeout, confidence):
         pg.click(clicks=clicks)
+        return True
+    return False
 
 
 if __name__ == "__main__":

@@ -47,7 +47,7 @@ TKINTER_IMPORT_SUCCEEDED = True
 
 try:
     if RUNNING_PYTHON_2:
-        import Tkinter as tk # type: ignore
+        import Tkinter as tk  # type: ignore
     else:
         import tkinter as tk
 
@@ -65,13 +65,13 @@ except ImportError:
 
 
 PROPORTIONAL_FONT_FAMILY = ("MS", "Sans", "Serif")
+BUTTON_FONT_FAMILY = ("MS", "Sans", "Serif")
 MONOSPACE_FONT_FAMILY = "Courier"
 
-PROPORTIONAL_FONT_SIZE = 10
-MONOSPACE_FONT_SIZE = (
-    9
-)  # a little smaller, because it it more legible at a smaller size
-TEXT_ENTRY_FONT_SIZE = 12  # a little larger makes it easier to see
+PROPORTIONAL_FONT_SIZE = 18
+BUTTON_FONT_SIZE = 20
+MONOSPACE_FONT_SIZE = 9  # a little smaller, because it it more legible at a smaller size
+TEXT_ENTRY_FONT_SIZE = 10  # a little larger makes it easier to see
 
 
 STANDARD_SELECTION_EVENTS = ["Return", "Button-1", "space"]
@@ -117,12 +117,18 @@ def CancelToExit(func):
 
     return wrapper
 
-def _alertTkinter(text="", title="", button=OK_TEXT, root=None, timeout=None):
+
+def _alertTkinter(text="", title="", button=OK_TEXT, topmost=False, root=None, timeout=None):
     """Displays a simple message box with text and a single OK button. Returns the text of the button clicked on."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
     text = str(text)
     retVal = _buttonbox(
-        msg=text, title=title, choices=[str(button)], root=root, timeout=timeout
+        msg=text,
+        title=title,
+        choices=[str(button)],
+        topmost=topmost,
+        root=root,
+        timeout=timeout,
     )
     if retVal is None:
         return button
@@ -134,7 +140,13 @@ alert = _alertTkinter
 
 
 def _confirmTkinter(
-    text="", title="", buttons=(OK_TEXT, CANCEL_TEXT), position=rootWindowPosition, topmost=False, root=None, timeout=None
+    text="",
+    title="",
+    buttons=(OK_TEXT, CANCEL_TEXT),
+    position=rootWindowPosition,
+    topmost=False,
+    root=None,
+    timeout=None,
 ):
     """Displays a message box with OK and Cancel buttons. Number and text of buttons can be customized. Returns the text of the button clicked on."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
@@ -152,14 +164,14 @@ def _confirmTkinter(
 
 confirm = _confirmTkinter
 
+
 @CancelToExit
 def _promptTkinter(text="", title="", rows=1, default="", root=None, timeout=None):
     """Displays a message box with text input, and OK & Cancel buttons. Returns the text entered, or None if Cancel was clicked."""
     assert TKINTER_IMPORT_SUCCEEDED, "Tkinter is required for pymsgbox"
     text = str(text)
-    return __fillablebox(
-        text, title, default=default, rows=rows, mask=None, root=root, timeout=timeout
-    )
+    return __fillablebox(text, title, default=default, rows=rows, mask=None, root=root, timeout=timeout)
+
 
 prompt = _promptTkinter
 
@@ -194,7 +206,15 @@ def timeoutBoxRoot():
     __enterboxText = TIMEOUT_RETURN_VALUE
 
 
-def _buttonbox(msg, title, choices, position=rootWindowPosition, topmost=False, root=None, timeout=None):
+def _buttonbox(
+    msg,
+    title,
+    choices,
+    position=rootWindowPosition,
+    topmost=False,
+    root=None,
+    timeout=None,
+):
     """
     Display a msg, a title, and a set of buttons.
     The buttons are defined by the members of the choices list.
@@ -269,14 +289,19 @@ def __put_buttons_in_buttonframe(choices):
     i = 0
 
     for buttonText in choices:
-        tempButton = tk.Button(buttonsFrame, takefocus=1, text=buttonText)
-        _bindArrows(tempButton)
-        tempButton.pack(
-            expand=tk.YES, side=tk.LEFT, padx="1m", pady="1m", ipadx="2m", ipady="1m"
+        Text = buttonText.split("#")
+        tempButton = tk.Button(
+            buttonsFrame,
+            takefocus=1,
+            text=Text[0],
+            font=(BUTTON_FONT_FAMILY, BUTTON_FONT_SIZE),
+            fg=Text[1] if len(Text) > 1 else "black",
         )
+        _bindArrows(tempButton)
+        tempButton.pack(expand=tk.YES, side=tk.LEFT, padx="1m", pady="1m", ipadx="2m", ipady="1m")
 
         # remember the text associated with this widget
-        __widgetTexts[tempButton] = buttonText
+        __widgetTexts[tempButton] = Text[0]
 
         # remember the first widget, so we can put the focus there
         if i == 0:
@@ -348,7 +373,6 @@ def __fillablebox(msg, title="", default="", rows=1, mask=None, root=None, timeo
     except ValueError:
         __rows = rows
 
-
     if root:
         root.withdraw()
         boxRoot = tk.Toplevel(master=root)
@@ -373,7 +397,7 @@ def __fillablebox(msg, title="", default="", rows=1, mask=None, root=None, timeo
     # ------------- define the entryFrame ---------------------------------
     entryFrame = tk.Frame(master=boxRoot)
     entryFrame.pack(side=tk.TOP, fill=tk.BOTH)
-    
+
     # ------------- define the textFrame ----------------------------------
     textFrame = tk.Frame(master=boxRoot)
     textFrame.pack(side=tk.TOP, fill=tk.BOTH)
@@ -410,7 +434,7 @@ def __fillablebox(msg, title="", default="", rows=1, mask=None, root=None, timeo
         textWidget.pack(side=tk.LEFT, padx="3m")
         # textWidget.bind("<Return>", __enterboxGetText)
         # textWidget.bind("<Escape>", __enterboxCancel)
-        
+
         # put text into the textWidget and have it pre-highlighted
         if __enterboxDefaultText != "":
             textWidget.insert("1.0", __enterboxDefaultText)
@@ -430,9 +454,7 @@ def __fillablebox(msg, title="", default="", rows=1, mask=None, root=None, timeo
     # ------------------ cancel button -------------------------------
     cancelButton = tk.Button(buttonsFrame, takefocus=1, text=CANCEL_TEXT)
     _bindArrows(cancelButton)
-    cancelButton.pack(
-        expand=1, side=tk.RIGHT, padx="3m", pady="3m", ipadx="2m", ipady="1m"
-    )
+    cancelButton.pack(expand=1, side=tk.RIGHT, padx="3m", pady="3m", ipadx="2m", ipady="1m")
 
     # for the commandButton, bind activation events to the activation event handler
     commandButton = cancelButton
