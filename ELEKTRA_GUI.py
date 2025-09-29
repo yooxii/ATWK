@@ -126,7 +126,9 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
 
     def startTest(self):
         if self.elektra_qthread:
-            return
+            self.elektra_qthread.stop()
+            self.elektra_qthread = None
+
         self.showMinimized()
         config = self.saveConfig()
         self.elektra_qthread = ELEKTRA_QThread(config)
@@ -146,7 +148,6 @@ class ELEKTRA_GUI(QDialog, Ui_Dialog):
         super().closeEvent(event)
 
 
-@TimeCount
 def main():
     app = QApplication(sys.argv)
     window = ELEKTRA_GUI()

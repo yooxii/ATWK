@@ -6,6 +6,8 @@ gap = 0.3
 
 
 def findmin(path, gap):
+    if not os.path.exists(os.path.join(path, "Overview.csv")):
+        return ""
     df = pd.read_csv(
         os.path.join(path, "Overview.csv"),
         header=None,
@@ -45,7 +47,7 @@ def findmin(path, gap):
 
 
 def checkTestPass(path):
-    if not os.path.exists(path):
+    if not os.path.exists(os.path.join(path, "CriticalPoint.csv")):
         return False
     df = pd.read_csv(
         os.path.join(path, "CriticalPoint.csv"),
@@ -56,3 +58,11 @@ def checkTestPass(path):
         return True
     else:
         return False
+
+
+def delete_csv(path):
+    """删除该路径下所有的csv文件"""
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.endswith(".csv"):
+                os.remove(os.path.join(root, file))

@@ -6,3 +6,5 @@ history.*
 history/
 build/
 dist/
+
+*.log
